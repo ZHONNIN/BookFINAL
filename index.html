@@ -1,244 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Magic Tome</title>
+<meta charset="UTF-8" />
+<title>Magic Tome 3D</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{width:100vw;height:100vh;overflow:hidden;font-family:Georgia,serif;background:linear-gradient(180deg,#0a0e27 0%,#1a0b2e 50%,#2d1b4e 100%);position:relative}
-#canvas-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1}
-.vignette{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;background:radial-gradient(circle at center,transparent 20%,rgba(0,0,0,0.7) 100%);z-index:2}
-#scene{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);perspective:1200px;z-index:10;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-#book{position:relative;width:420px;height:560px;transform-style:preserve-3d;transition:transform 0.6s ease-out}
-.cover,.spine,.page{position:absolute;transform-style:preserve-3d}
-.cover{width:420px;height:560px;background-size:cover;background-position:center;border-radius:4px;box-shadow:0 15px 50px rgba(0,0,0,0.7)}
-.cover.front{transform:translateZ(20px);background-image:url('data:image/svg+xml;charset=utf8,%3Csvg width="900" height="1200" viewBox="0 0 900 1200" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3ClinearGradient id="bgf" x1="0" y1="0" x2="0" y2="1"%3E%3Cstop offset="0%25" stop-color="%231b2d5e"/%3E%3Cstop offset="100%25" stop-color="%233c2c72"/%3E%3C/linearGradient%3E%3CradialGradient id="glowf" cx="50%25" cy="50%25" r="60%25"%3E%3Cstop offset="0%25" stop-color="rgba(90,180,255,0.6)"/%3E%3Cstop offset="70%25" stop-color="rgba(50,60,130,0.32)"/%3E%3Cstop offset="100%25" stop-color="transparent"/%3E%3C/radialGradient%3E%3ClinearGradient id="goldf" x1="0" y1="0" x2="1" y2="1"%3E%3Cstop offset="0%25" stop-color="%23e8d9a8"/%3E%3Cstop offset="50%25" stop-color="%23c7a96a"/%3E%3Cstop offset="100%25" stop-color="%238f7443"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="900" height="1200" fill="url(%23bgf)"/%3E%3Ccircle cx="450" cy="600" r="330" fill="url(%23glowf)"/%3E%3Ccircle cx="450" cy="600" r="300" stroke="%236aa7ff" stroke-width="2.4" fill="none" opacity="0.65"/%3E%3Ccircle cx="450" cy="600" r="220" stroke="%23a8d2ff" stroke-width="3.2" fill="none" opacity="0.75"/%3E%3Ccircle cx="450" cy="600" r="140" stroke="%23dce8ff" stroke-width="2.6" fill="none" opacity="0.8"/%3E%3Cg stroke="%23fff" stroke-width="3" opacity="0.9"%3E%3Cline x1="450" y1="540" x2="450" y2="660"/%3E%3Cline x1="390" y1="600" x2="510" y2="600"/%3E%3Cline x1="405" y1="555" x2="495" y2="645"/%3E%3Cline x1="405" y1="645" x2="495" y2="555"/%3E%3C/g%3E%3Ccircle cx="450" cy="600" r="60" fill="rgba(255,255,255,0.27)"/%3E%3Ccircle cx="450" cy="600" r="18" fill="%23fff"/%3E%3Cpath d="M80 200 Q450 -40 820 200 L820 260 Q450 60 80 260 Z" fill="url(%23goldf)" opacity="0.85"/%3E%3Cpath d="M410 920 L450 980 L490 920 Q450 950 410 920 Z" fill="url(%23goldf)" opacity="0.9"/%3E%3C/svg%3E');cursor:pointer}
-.cover.back{transform:translateZ(-20px) rotateY(180deg);background:linear-gradient(135deg,#2a1d4e 0%,#1b2d5e 100%)}
-.spine{width:40px;height:560px;background:linear-gradient(90deg,#1a0f2e 0%,#2d1f4a 50%,#1a0f2e 100%);transform:translateX(-20px) rotateY(-90deg);transform-origin:right center;border-radius:2px;box-shadow:inset 0 0 20px rgba(0,0,0,0.5)}
-.pages{position:absolute;width:420px;height:560px;transform-style:preserve-3d}
-.page{width:420px;height:560px;background:linear-gradient(135deg,#f4ead5 0%,#ede1c8 100%);border:1px solid #d4c4a8;padding:60px 50px;font-size:17px;line-height:1.9;color:rgba(0,0,0,0.75);overflow:hidden;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(200,180,140,0.04) 2px,rgba(200,180,140,0.04) 4px);transform-origin:right center;backface-visibility:hidden;transition:transform 0.85s cubic-bezier(0.4,0,0.2,1),box-shadow 0.85s ease;opacity:0;pointer-events:none}
-.page.active{opacity:1;pointer-events:auto}
-.page h1{color:#c7a96a;font-size:32px;margin-bottom:35px;text-align:center;text-shadow:0 2px 4px rgba(0,0,0,0.15);font-weight:normal}
-.page h2{color:#8f7443;font-size:22px;margin-bottom:25px;font-weight:normal}
-.page p{margin-bottom:18px;text-indent:35px;color:#3a2f1f}
-#book.open .cover.front{transform:translateZ(20px) rotateY(-165deg);transform-origin:left center;transition:transform 0.8s ease-out}
-#book.open .cover.back{transform:translateZ(-20px) rotateY(15deg);transform-origin:right center;transition:transform 0.8s ease-out}
-.page.flipped{transform:rotateY(-180deg);box-shadow:-6px 6px 25px rgba(0,0,0,0.45)}
-#close-btn{position:fixed;top:40px;right:40px;padding:14px 32px;background:rgba(30,20,50,0.88);color:#e8d9a8;border:2px solid #c7a96a;border-radius:10px;font-family:Georgia,serif;font-size:17px;cursor:pointer;z-index:100;opacity:0;pointer-events:none;transition:all 0.35s ease;backdrop-filter:blur(12px)}
-#close-btn:hover{background:rgba(50,35,70,0.96);box-shadow:0 0 24px rgba(199,169,106,0.5);transform:translateY(-2px)}
-#close-btn.visible{opacity:1;pointer-events:auto}
-.page-turn-left,.page-turn-right{position:absolute;width:50%;height:100%;top:0;cursor:pointer;z-index:50}
-.page-turn-left{left:0}
-.page-turn-right{right:0}
+html,body{
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:#0a0f25;
+  height:100%;
+  font-family:serif;
+}
+
+#bgCanvas{
+  position:fixed;
+  top:0;left:0;
+  width:100vw;
+  height:100vh;
+  z-index:-2;
+}
+
+#scene{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  perspective:1600px;
+}
+
+#book{
+  position:relative;
+  width:420px;
+  height:560px;
+  transform-style:preserve-3d;
+  transform-origin:center center;
+  animation:float 5s ease-in-out infinite;
+  cursor:pointer;
+}
+
+@keyframes float{
+  0%{ transform:rotateX(8deg) rotateY(-6deg) translateY(0px); }
+  50%{ transform:rotateX(12deg) rotateY(-3deg) translateY(-12px); }
+  100%{ transform:rotateX(8deg) rotateY(-6deg) translateY(0px); }
+}
+
+.cover{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background-size:cover;
+  background-position:center;
+  backface-visibility:hidden;
+  border-radius:6px;
+}
+
+.front{
+  transform:translateZ(20px);
+}
+
+.back{
+  transform:rotateY(180deg) translateZ(20px);
+  background:linear-gradient(#1a1a1a,#000);
+}
+
+.spine{
+  position:absolute;
+  width:40px;
+  height:100%;
+  left:-40px;
+  top:0;
+  background:#1f1f1f;
+  transform:rotateY(90deg) translateZ(20px);
+  border-radius:4px;
+}
+
+.pages{
+  position:absolute;
+  width:100%;
+  height:100%;
+  transform-style:preserve-3d;
+  top:0;left:0;
+}
+
+.page{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:#f7f0e5;
+  background-image:repeating-linear-gradient(#f7f0e5 0%, #f7f0e5 96%, #f0e7d6 100%);
+  transform-origin:left center;
+  backface-visibility:hidden;
+  border-radius:4px;
+  padding:40px;
+  box-sizing:border-box;
+  font-size:26px;
+  line-height:1.4;
+  color:#d9c091;
+  box-shadow:0 0 8px rgba(0,0,0,0.25);
+}
+
+.page:nth-child(1){ transform:translateZ(1px); }
+.page:nth-child(2){ transform:translateZ(2px); }
+.page:nth-child(3){ transform:translateZ(3px); }
+.page:nth-child(4){ transform:translateZ(4px); }
+.page:nth-child(5){ transform:translateZ(5px); }
+.page:nth-child(6){ transform:translateZ(6px); }
+
+#closeBtn{
+  position:fixed;
+  bottom:50px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#ffffff10;
+  border:1px solid #ffffff60;
+  padding:10px 30px;
+  color:#fff;
+  border-radius:6px;
+  backdrop-filter:blur(6px);
+  cursor:pointer;
+  font-size:20px;
+  display:none;
+}
+
 </style>
 </head>
 <body>
-<canvas id="canvas-bg"></canvas>
-<div class="vignette"></div>
+
+<canvas id="bgCanvas"></canvas>
+
 <div id="scene">
-<div id="book">
-<div class="cover front"></div>
-<div class="cover back"></div>
-<div class="spine"></div>
-<div class="pages">
-<div class="page p1">
-<h1>The Astral Record</h1>
-<p>Within these pages lies the chronicle of worlds unseen, where starlight weaves through the fabric of time and space. Each word carries the weight of cosmic truth, inscribed by hands guided by celestial wisdom.</p>
-<p>What you hold is no mere tome, but a key to understanding the dance of constellations, the whisper of nebulae, and the silent songs that echo through the void.</p>
-<p>Turn the page, and let the journey begin.</p>
+  <div id="book">
+
+    <div class="cover front" id="coverFront"></div>
+    <div class="cover back"></div>
+    <div class="spine"></div>
+
+    <div class="pages">
+      <div class="page p1">The Astral Record</div>
+      <div class="page p2">Chapter I – A Light in the Deep</div>
+      <div class="page p3">Chapter II – Signs of the Constellation</div>
+      <div class="page p4">Chapter III – Bloom of Time</div>
+      <div class="page p5">Chapter IV – Whispering Stars</div>
+      <div class="page p6">Final Notes – The Story Has Come to an End</div>
+    </div>
+
+  </div>
 </div>
-<div class="page p2">
-<h2>Chapter I – A Light in the Deep</h2>
-<p>Before the first dawn, there was only the Deep—an endless expanse of shadow and potential. From this primordial darkness emerged a single point of light, no larger than a grain of sand, yet containing within it the seeds of infinite worlds.</p>
-<p>This light did not burn with heat, nor did it blind with brilliance. Instead, it pulsed with a gentle rhythm, like the heartbeat of creation itself.</p>
-<p>And as it pulsed, the darkness began to dream.</p>
-</div>
-<div class="page p3">
-<h2>Chapter II – Signs of the Constellation</h2>
-<p>The stars are not random scatterings across the night sky. Each constellation is a sign, a message written in the language of light. The ancients understood this truth and built their temples aligned with the heavens.</p>
-<p>The Archer points toward destiny. The Scales weigh the balance of souls. The Serpent guards the threshold between worlds.</p>
-<p>To read the stars is to glimpse the pattern that underlies all existence—a pattern woven by forces beyond mortal comprehension.</p>
-</div>
-<div class="page p4">
-<h2>Chapter III – Bloom of Time</h2>
-<p>Time does not flow in a line, but blooms like a flower with infinite petals. Each petal is a possibility, a moment that might have been or could yet be. We traverse but one petal, believing it to be the only reality.</p>
-<p>Yet those with eyes to see can perceive the other petals, translucent and shimmering at the edges of perception. Sometimes, in dreams or moments of deep meditation, we slip between petals and glimpse what might have been.</p>
-<p>The bloom is eternal, ever-unfolding.</p>
-</div>
-<div class="page p5">
-<h2>Chapter IV – Whispering Stars</h2>
-<p>On silent nights, when the world holds its breath, the stars whisper. Their voices are ancient beyond measure, carrying tales of galaxies born and died, of civilizations that rose among distant suns and faded into cosmic dust.</p>
-<p>Listen closely, and you might hear your own name among their whispers—for you are stardust, shaped by the same forces that forged the heavens. The iron in your blood was born in the heart of a dying star.</p>
-<p>You are not separate from the cosmos. You are the cosmos knowing itself.</p>
-</div>
-<div class="page p6">
-<h2>Final Notes – The Story Has Come to an End</h2>
-<p>As you close this tome, know that the journey does not end here. These words were but a beginning, a spark to ignite the flame of curiosity within your soul.</p>
-<p>The universe is vast beyond imagining, filled with wonders that no book could contain. Go forth with eyes open to mystery, heart open to wonder, and mind open to the infinite.</p>
-<p>May the stars guide your path, now and always.</p>
-<br><br>
-<p style="text-align:center;font-style:italic;color:#c7a96a">— End of the Astral Record —</p>
-</div>
-</div>
-</div>
-</div>
-<button id="close-btn">Close Book</button>
+
+<button id="closeBtn">Close Book</button>
+
 <script>
-const canvas=document.getElementById('canvas-bg');
-const ctx=canvas.getContext('2d');
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-const particles=[];
-for(let i=0;i<120;i++){
-particles.push({
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-size:Math.random()*2.5+0.5,
-speedX:(Math.random()-0.5)*0.35,
-speedY:(Math.random()-0.5)*0.35,
-opacity:Math.random()*0.6+0.25,
-hue:Math.random()>0.5?200:320
+/* ===================
+   背景粒子星空
+=================== */
+const canvas = document.getElementById("bgCanvas");
+const ctx = canvas.getContext("2d");
+function resize(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+let particles=[];
+for(let i=0;i<150;i++){
+  particles.push({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    s:Math.random()*2+0.5,
+    vx:(Math.random()-0.5)*0.2,
+    vy:(Math.random()-0.5)*0.2
+  });
+}
+
+function animateParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#ffffff";
+  particles.forEach(p=>{
+    p.x+=p.vx;
+    p.y+=p.vy;
+    if(p.x<0) p.x=canvas.width;
+    if(p.y<0) p.y=canvas.height;
+    if(p.x>canvas.width) p.x=0;
+    if(p.y>canvas.height) p.y=0;
+    ctx.globalAlpha=0.5;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.s,0,Math.PI*2);
+    ctx.fill();
+  });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+/* ===================
+   书本翻页逻辑
+=================== */
+let open=false;
+let current=0;
+const total=6;
+const book=document.getElementById("book");
+const pages=document.querySelectorAll(".page");
+const closeBtn=document.getElementById("closeBtn");
+let animating=false;
+
+book.addEventListener("click",(e)=>{
+  if(animating) return;
+
+  if(!open){
+    openBook();
+  }else{
+    const rect=book.getBoundingClientRect();
+    const x=e.clientX-rect.left;
+    if(x>rect.width/2) flipForward();
+    else flipBackward();
+  }
 });
-}
-function drawParticles(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-particles.forEach(p=>{
-ctx.beginPath();
-ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-ctx.fillStyle=`hsla(${p.hue},70%,70%,${p.opacity})`;
-ctx.fill();
-p.x+=p.speedX;
-p.y+=p.speedY;
-if(p.x<0)p.x=canvas.width;
-if(p.x>canvas.width)p.x=0;
-if(p.y<0)p.y=canvas.height;
-if(p.y>canvas.height)p.y=0;
-});
-}
-const book=document.getElementById('book');
-const pages=document.querySelectorAll('.page');
-const closeBtn=document.getElementById('close-btn');
-const coverFront=document.querySelector('.cover.front');
-let isOpen=false;
-let currentPage=0;
-let isAnimating=false;
-let time=0;
-function floatAnimation(){
-time+=0.008;
-const floatY=Math.sin(time)*10;
-const rotateX=Math.sin(time*0.7)*4;
-const rotateY=Math.cos(time*0.5)*5;
-if(!isOpen){
-book.style.transform=`rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(${floatY}px)`;
-}
-}
+
 function openBook(){
-if(isAnimating||isOpen)return;
-isAnimating=true;
-isOpen=true;
-book.classList.add('open');
-closeBtn.classList.add('visible');
-coverFront.style.cursor='default';
-setTimeout(()=>{
-pages[0].classList.add('active');
-const rightArea=document.createElement('div');
-rightArea.className='page-turn-right';
-rightArea.onclick=flipForward;
-pages[0].appendChild(rightArea);
-isAnimating=false;
-},800);
+  animating=true;
+  book.style.transition="transform 1s ease";
+  book.style.transform="rotateY(-25deg) rotateX(10deg) translateY(-10px)";
+  setTimeout(()=>{animating=false;open=true;closeBtn.style.display='block';},1000);
 }
+
 function closeBook(){
-if(isAnimating)return;
-isAnimating=true;
-pages.forEach(page=>{
-page.classList.remove('active','flipped');
-page.style.transform='';
-const areas=page.querySelectorAll('.page-turn-left,.page-turn-right');
-areas.forEach(a=>a.remove());
-});
-currentPage=0;
-book.classList.remove('open');
-closeBtn.classList.remove('visible');
-coverFront.style.cursor='pointer';
-setTimeout(()=>{
-isOpen=false;
-isAnimating=false;
-},800);
+  animating=true;
+  book.style.transition="transform 1s ease";
+  book.style.transform="";
+  pages.forEach(p=>p.style.transform="");
+  current=0;
+  setTimeout(()=>{open=false;animating=false;closeBtn.style.display='none';},1000);
 }
-function flipForward(){
-if(isAnimating||currentPage>=pages.length-1)return;
-isAnimating=true;
-const curr=pages[currentPage];
-const next=pages[currentPage+1];
-curr.style.transformOrigin='right center';
-curr.classList.add('flipped');
-const areas=curr.querySelectorAll('.page-turn-left,.page-turn-right');
-areas.forEach(a=>a.remove());
-setTimeout(()=>{
-currentPage++;
-next.classList.add('active');
-if(currentPage<pages.length-1){
-const left=document.createElement('div');
-left.className='page-turn-left';
-left.onclick=flipBackward;
-next.appendChild(left);
-const right=document.createElement('div');
-right.className='page-turn-right';
-right.onclick=flipForward;
-next.appendChild(right);
-}else{
-const left=document.createElement('div');
-left.className='page-turn-left';
-left.onclick=flipBackward;
-next.appendChild(left);
-}
-isAnimating=false;
-},850);
-}
-function flipBackward(){
-if(isAnimating||currentPage<=0)return;
-isAnimating=true;
-const curr=pages[currentPage];
-const prev=pages[currentPage-1];
-const areas=curr.querySelectorAll('.page-turn-left,.page-turn-right');
-areas.forEach(a=>a.remove());
-curr.classList.remove('active');
-prev.classList.remove('flipped');
-prev.style.transform='';
-setTimeout(()=>{
-currentPage--;
-if(currentPage===0){
-const right=document.createElement('div');
-right.className='page-turn-right';
-right.onclick=flipForward;
-prev.appendChild(right);
-}else{
-const left=document.createElement('div');
-left.className='page-turn-left';
-left.onclick=flipBackward;
-prev.appendChild(left);
-const right=document.createElement('div');
-right.className='page-turn-right';
-right.onclick=flipForward;
-prev.appendChild(right);
-}
-isAnimating=false;
-},850);
-}
-coverFront.onclick=openBook;
+
 closeBtn.onclick=closeBook;
-function animate(){
-drawParticles();
-floatAnimation();
-requestAnimationFrame(animate);
+
+function flipForward(){
+  if(current>=total-1) return;
+  animating=true;
+  const p=pages[current];
+  p.style.transition="transform 0.9s ease";
+  p.style.transform="rotateY(-180deg)";
+  current++;
+  setTimeout(()=>{animating=false;},900);
 }
-animate();
-window.onresize=()=>{
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-};
+
+function flipBackward(){
+  if(current<=0) return;
+  animating=true;
+  current--;
+  const p=pages[current];
+  p.style.transition="transform 0.9s ease";
+  p.style.transform="";
+  setTimeout(()=>{animating=false;},900);
+}
+
+/* ===================
+   封面贴图：你的魔法书 SVG
+=================== */
+const coverSVG = `
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="1280" viewBox="0 0 960 1280">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1638"/>
+      <stop offset="100%" stop-color="#1c2759"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="rgba(120,200,255,0.8)"/>
+      <stop offset="50%" stop-color="rgba(80,130,210,0.5)"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f4e7c2"/>
+      <stop offset="60%" stop-color="#c7a55d"/>
+      <stop offset="100%" stop-color="#8b6c3b"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="100%" height="100%" fill="url(#bg)" />
+  <circle cx="480" cy="620" r="380" fill="url(#glow)" />
+  <g fill="url(#gold)" opacity="0.85" transform="translate(80,90)">
+    <rect x="0" y="0" width="800" height="80" rx="18"/>
+  </g>
+
+  <circle cx="825" cy="120" r="36" fill="url(#gold)" />
+  <g transform="translate(770,1080)">
+    <circle r="48" fill="url(#gold)"/>
+    <circle r="32" fill="rgba(255,255,255,0.3)"/>
+    <circle r="18" fill="white"/>
+  </g>
+
+  <circle cx="480" cy="640" r="310" stroke="#86c7ff" stroke-width="4" fill="none" opacity="0.7"/>
+</svg>
+`;
+
+const coverDataURL = "data:image/svg+xml;base64,"+btoa(coverSVG);
+document.getElementById("coverFront").style.backgroundImage=`url('${coverDataURL}')`;
+
 </script>
 </body>
 </html>
