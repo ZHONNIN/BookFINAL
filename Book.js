@@ -9,7 +9,7 @@ class Book {
     this.bookWidth = 3.0;
     this.bookHeight = 4.0;
     this.coverThickness = 0.06;
-    this.pageBlockThickness = 0.05; 
+    this.pageBlockThickness = 0.05;
     this.spineWidth = this.coverThickness;
 
     this.coverFront = null;
@@ -50,7 +50,7 @@ class Book {
     this.spine.receiveShadow = true;
     this.group.add(this.spine);
 
-    const pageGeo = new THREE.PlaneGeometry(this.bookWidth, this.bookHeight, 20, 20);
+    const pageGeo = new THREE.BoxGeometry(this.bookWidth, this.bookHeight, 0.002, 20, 20, 1);
 
     for (let i = 0; i < this.totalPages; i++) {
       const shaderMat = createShaderPageMaterial();

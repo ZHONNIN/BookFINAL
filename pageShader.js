@@ -12,7 +12,7 @@ void main() {
   vec3 pos = position;
 
   float bendFactor = sin(uv.x * 3.14159) * uBendAmount * uFlipProgress;
-  pos.z += bendFactor * 0.15;
+  pos.z += bendFactor * 0.02;
 
   vPosition = pos;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
