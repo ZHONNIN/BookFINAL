@@ -43,12 +43,11 @@ class Book {
     this.coverBack.receiveShadow = true;
     this.group.add(this.coverBack);
 
-    const spineGeo = new THREE.BoxGeometry(this.spineWidth, this.bookHeight, this.bookWidth);
+    const spineGeo = new THREE.BoxGeometry(this.spineWidth, this.bookHeight, this.coverThickness);
     this.spine = new THREE.Mesh(spineGeo, spineMat);
-    this.spine.position.set(-this.bookWidth / 2 + this.spineWidth / 2, 0, 0);
+    this.spine.position.set(-this.bookWidth / 2 - this.spineWidth / 2, 0, 0);
     this.spine.castShadow = true;
     this.spine.receiveShadow = true;
-    this.spine.visible = false;
     this.group.add(this.spine);
 
     const pageGeo = new THREE.BoxGeometry(this.bookWidth, this.bookHeight, 0.002, 20, 20, 1);
@@ -56,7 +55,7 @@ class Book {
     for (let i = 0; i < this.totalPages; i++) {
       const shaderMat = createShaderPageMaterial();
       const page = new THREE.Mesh(pageGeo, shaderMat);
-      const offsetRange = this.coverThickness * 0.4;
+      const offsetRange = this.coverThickness * 0.25;
       const offset = (i / this.totalPages) * offsetRange - offsetRange / 2;
 
       page.castShadow = true;
