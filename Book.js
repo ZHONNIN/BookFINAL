@@ -10,7 +10,7 @@ class Book {
     this.bookHeight = 4.0;
     this.coverThickness = 0.06;
     this.pageBlockThickness = 0.1;
-    this.spineWidth = this.pageBlockThickness + this.coverThickness * 2;
+    this.spineWidth = this.coverThickness;
 
     this.coverFront = null;
     this.coverBack = null;
@@ -43,9 +43,9 @@ class Book {
     this.coverBack.receiveShadow = true;
     this.group.add(this.coverBack);
 
-    const spineGeo = new THREE.BoxGeometry(this.bookWidth, this.bookHeight, this.spineWidth);
+    const spineGeo = new THREE.BoxGeometry(this.spineWidth, this.bookHeight, this.bookWidth);
     this.spine = new THREE.Mesh(spineGeo, spineMat);
-    this.spine.position.set(-this.bookWidth / 2, 0, 0);
+    this.spine.position.set(-this.bookWidth / 2 + this.spineWidth / 2, 0, 0);
     this.spine.castShadow = true;
     this.spine.receiveShadow = true;
     this.group.add(this.spine);
