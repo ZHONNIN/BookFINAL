@@ -1,5 +1,3 @@
-import { Book } from './Book.js';
-
 let scene, camera, renderer, controls;
 let book;
 let raycaster, mouse;
@@ -116,4 +114,4 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-init();
+window.addEventListener('DOMContentLoaded', init);

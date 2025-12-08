@@ -1,4 +1,4 @@
-export const pageVertexShader = `
+const pageVertexShader = `
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -19,7 +19,7 @@ void main() {
 }
 `;
 
-export const pageFragmentShader = `
+const pageFragmentShader = `
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -39,7 +39,7 @@ void main() {
 }
 `;
 
-export function createPageMaterial() {
+function createShaderPageMaterial() {
   return new THREE.ShaderMaterial({
     vertexShader: pageVertexShader,
     fragmentShader: pageFragmentShader,

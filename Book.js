@@ -1,7 +1,4 @@
-import { createCoverMaterial, createSpineMaterial, createPageMaterial, createPageEdgeMaterial } from './BookMaterials.js';
-import { createPageMaterial as createShaderPageMaterial } from './pageShader.js';
-
-export class Book {
+class Book {
   constructor() {
     this.group = new THREE.Group();
     this.isOpen = false;
@@ -26,7 +23,6 @@ export class Book {
   createBook() {
     const coverMat = createCoverMaterial();
     const spineMat = createSpineMaterial();
-    const pageMat = createPageMaterial();
 
     const coverGeo = new THREE.BoxGeometry(this.bookWidth, this.bookHeight, this.coverThickness);
 

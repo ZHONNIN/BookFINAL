@@ -1,4 +1,4 @@
-export function createCoverMaterial() {
+function createCoverMaterial() {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 512;
@@ -37,7 +37,7 @@ export function createCoverMaterial() {
   });
 }
 
-export function createSpineMaterial() {
+function createSpineMaterial() {
   const canvas = document.createElement('canvas');
   canvas.width = 128;
   canvas.height = 512;
@@ -59,7 +59,7 @@ export function createSpineMaterial() {
   });
 }
 
-export function createPageMaterial() {
+function createPageMaterial() {
   return new THREE.MeshPhysicalMaterial({
     color: 0xf2ebe0,
     roughness: 0.9,
@@ -70,7 +70,7 @@ export function createPageMaterial() {
   });
 }
 
-export function createPageEdgeMaterial() {
+function createPageEdgeMaterial() {
   return new THREE.MeshStandardMaterial({
     color: 0xe8ddc8,
     roughness: 1.0,
