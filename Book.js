@@ -9,7 +9,7 @@ class Book {
     this.bookWidth = 3.0;
     this.bookHeight = 4.0;
     this.coverThickness = 0.06;
-    this.pageBlockThickness = 0.1;
+    this.pageBlockThickness = 0.05; 
     this.spineWidth = this.coverThickness;
 
     this.coverFront = null;
@@ -32,13 +32,13 @@ class Book {
 
     const coverPivot = new THREE.Group();
     coverPivot.position.set(-this.bookWidth / 2, 0, 0);
-    this.coverFront.position.set(0, 0, this.pageBlockThickness / 2);
+    this.coverFront.position.set(0, 0, this.coverThickness / 2);
     coverPivot.add(this.coverFront);
     this.coverFrontPivot = coverPivot;
     this.group.add(coverPivot);
 
     this.coverBack = new THREE.Mesh(coverGeo, coverMat.clone());
-    this.coverBack.position.set(0, 0, -this.pageBlockThickness / 2);
+    this.coverBack.position.set(0, 0, -this.coverThickness / 2);
     this.coverBack.castShadow = true;
     this.coverBack.receiveShadow = true;
     this.group.add(this.coverBack);
@@ -54,8 +54,8 @@ class Book {
 
     for (let i = 0; i < this.totalPages; i++) {
       const shaderMat = createShaderPageMaterial();
-      const page = new THREE.Mesh(pageGeo, shaderMat);
-      const offset = (i / this.totalPages) * this.pageBlockThickness - this.pageBlockThickness / 2;
+      const offsetRange = this.coverThickness * 0.9;   // 预留一点空间
+      const offset = (i / this.totalPages) * offsetRange - offsetRange / 2;
 
       page.castShadow = true;
       page.receiveShadow = true;
