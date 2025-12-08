@@ -57,15 +57,13 @@ class Book {
       const shaderMat = createShaderPageMaterial();
       const page = new THREE.Mesh(pageGeo, shaderMat);
       const offset = (i / this.totalPages) * this.pageBlockThickness - this.pageBlockThickness / 2;
-      page.position.set(this.bookWidth / 2, 0, offset);
-      page.rotation.y = Math.PI / 2;
+
       page.castShadow = true;
       page.receiveShadow = true;
 
       const pagePivot = new THREE.Group();
       pagePivot.position.set(-this.bookWidth / 2, 0, offset);
-      page.position.x = this.bookWidth / 2;
-      page.rotation.y = Math.PI / 2;
+      page.position.set(this.bookWidth / 2, 0, 0);
       pagePivot.add(page);
 
       this.pages.push({
