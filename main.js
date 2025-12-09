@@ -88,7 +88,7 @@ function onMouseClick(event) {
     book.coverFront,
     book.coverBack,
     book.spine,
-    ...book.pages.map(p => p.mesh)
+    ...book.pagePairs.map(p => p.rightPage)
   ];
 
   const intersects = raycaster.intersectObjects(intersectObjects, true);

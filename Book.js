@@ -15,7 +15,7 @@ class Book {
     this.coverFront = null;
     this.coverBack = null;
     this.spine = null;
-    this.pages = [];
+    this.pagePairs = [];
 
     this.createBook();
   }
@@ -26,49 +26,61 @@ class Book {
 
     const coverGeo = new THREE.BoxGeometry(this.bookWidth, this.bookHeight, this.coverThickness);
 
+    // Front cover with pivot at spine
+    const coverFrontPivot = new THREE.Group();
+    coverFrontPivot.position.set(-this.bookWidth / 2, 0, 0);
+
     this.coverFront = new THREE.Mesh(coverGeo, coverMat);
+    this.coverFront.position.set(this.bookWidth / 2, 0, this.coverThickness / 2);
     this.coverFront.castShadow = true;
     this.coverFront.receiveShadow = true;
 
-    const coverPivot = new THREE.Group();
-    coverPivot.position.set(-this.bookWidth / 2, 0, 0);
-    this.coverFront.position.set(this.bookWidth / 2, 0, this.coverThickness / 2);
-    coverPivot.add(this.coverFront);
-    this.coverFrontPivot = coverPivot;
-    this.group.add(coverPivot);
+    coverFrontPivot.add(this.coverFront);
+    this.coverFrontPivot = coverFrontPivot;
+    this.group.add(coverFrontPivot);
+
+    // Back cover with pivot at spine
+    const coverBackPivot = new THREE.Group();
+    coverBackPivot.position.set(-this.bookWidth / 2, 0, 0);
 
     this.coverBack = new THREE.Mesh(coverGeo, coverMat.clone());
     this.coverBack.position.set(this.bookWidth / 2, 0, -this.coverThickness / 2);
     this.coverBack.castShadow = true;
     this.coverBack.receiveShadow = true;
-    this.group.add(this.coverBack);
 
+    coverBackPivot.add(this.coverBack);
+    this.coverBackPivot = coverBackPivot;
+    this.group.add(coverBackPivot);
+
+    // Spine - connecting covers at the left edge
     const spineGeo = new THREE.BoxGeometry(this.spineWidth, this.bookHeight, this.coverThickness);
     this.spine = new THREE.Mesh(spineGeo, spineMat);
-    this.spine.position.set(-this.bookWidth / 2 - this.spineWidth / 2, 0, 0);
+    this.spine.position.set(-this.bookWidth / 2 + this.spineWidth / 2, 0, 0);
     this.spine.castShadow = true;
     this.spine.receiveShadow = true;
     this.group.add(this.spine);
 
+    // Create page pairs
     const pageGeo = new THREE.BoxGeometry(this.bookWidth, this.bookHeight, 0.002, 20, 20, 1);
+    const offsetRange = this.coverThickness * 0.8;
 
     for (let i = 0; i < this.totalPages; i++) {
       const shaderMat = createShaderPageMaterial();
-      const page = new THREE.Mesh(pageGeo, shaderMat);
-      const offsetRange = this.coverThickness * 0.25;
+      const rightPage = new THREE.Mesh(pageGeo, shaderMat);
+
       const offset = (i / this.totalPages) * offsetRange - offsetRange / 2;
 
-      page.castShadow = true;
-      page.receiveShadow = true;
+      rightPage.castShadow = true;
+      rightPage.receiveShadow = true;
 
       const pagePivot = new THREE.Group();
       pagePivot.position.set(-this.bookWidth / 2, 0, offset);
-      page.position.set(this.bookWidth / 2, 0, 0);
-      pagePivot.add(page);
+      rightPage.position.set(0, 0, 0);
+      pagePivot.add(rightPage);
 
-      this.pages.push({
+      this.pagePairs.push({
         pivot: pagePivot,
-        mesh: page,
+        rightPage: rightPage,
         material: shaderMat
       });
 
@@ -108,18 +120,18 @@ class Book {
       }
     });
 
-    this.pages.forEach((pageObj, i) => {
+    this.pagePairs.forEach((pairObj, i) => {
       if (i < this.currentPage) {
-        gsap.to(pageObj.pivot.rotation, {
+        gsap.to(pairObj.pivot.rotation, {
           y: 0,
           duration: 0.8,
           ease: "power2.inOut"
         });
-        gsap.to(pageObj.material.uniforms.uBendAmount, {
+        gsap.to(pairObj.material.uniforms.uBendAmount, {
           value: 0,
           duration: 0.8
         });
-        gsap.to(pageObj.material.uniforms.uFlipProgress, {
+        gsap.to(pairObj.material.uniforms.uFlipProgress, {
           value: 0,
           duration: 0.8
         });
@@ -133,26 +145,26 @@ class Book {
     if (this.animating || !this.isOpen || this.currentPage >= this.totalPages) return;
     this.animating = true;
 
-    const pageObj = this.pages[this.currentPage];
+    const pairObj = this.pagePairs[this.currentPage];
 
-    gsap.to(pageObj.material.uniforms.uBendAmount, {
+    gsap.to(pairObj.material.uniforms.uBendAmount, {
       value: 1.0,
       duration: 0.45,
       ease: "power1.inOut"
     });
 
-    gsap.to(pageObj.material.uniforms.uFlipProgress, {
+    gsap.to(pairObj.material.uniforms.uFlipProgress, {
       value: 1.0,
       duration: 0.9,
       ease: "power2.inOut"
     });
 
-    gsap.to(pageObj.pivot.rotation, {
+    gsap.to(pairObj.pivot.rotation, {
       y: -Math.PI,
       duration: 0.9,
       ease: "power2.inOut",
       onComplete: () => {
-        gsap.to(pageObj.material.uniforms.uBendAmount, {
+        gsap.to(pairObj.material.uniforms.uBendAmount, {
           value: 0,
           duration: 0.3
         });
@@ -167,30 +179,30 @@ class Book {
     this.animating = true;
 
     this.currentPage--;
-    const pageObj = this.pages[this.currentPage];
+    const pairObj = this.pagePairs[this.currentPage];
 
-    gsap.to(pageObj.material.uniforms.uBendAmount, {
+    gsap.to(pairObj.material.uniforms.uBendAmount, {
       value: 1.0,
       duration: 0.45,
       ease: "power1.inOut"
     });
 
-    gsap.to(pageObj.material.uniforms.uFlipProgress, {
+    gsap.to(pairObj.material.uniforms.uFlipProgress, {
       value: 0.5,
       duration: 0.9,
       ease: "power2.inOut"
     });
 
-    gsap.to(pageObj.pivot.rotation, {
+    gsap.to(pairObj.pivot.rotation, {
       y: 0,
       duration: 0.9,
       ease: "power2.inOut",
       onComplete: () => {
-        gsap.to(pageObj.material.uniforms.uBendAmount, {
+        gsap.to(pairObj.material.uniforms.uBendAmount, {
           value: 0,
           duration: 0.3
         });
-        gsap.to(pageObj.material.uniforms.uFlipProgress, {
+        gsap.to(pairObj.material.uniforms.uFlipProgress, {
           value: 0,
           duration: 0.3
         });
